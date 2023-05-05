@@ -36,7 +36,6 @@ module.exports = {
       warnings: false,
       errors: true
     },
-
     proxy: {
       '/dev-api': {
         target: 'http://39.98.123.211',
