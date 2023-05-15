@@ -54,6 +54,8 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
+]
+export const asyncRoute = [
   {
     path: "/product",
     component: Layout,
@@ -70,26 +72,73 @@ export const constantRoutes = [
         path: "attr",
         name: "Attr",
         component: () => import('@/views/product/attr'),
-        meta: { title: '商品属性' },
-      },
-      {
-        path: "sku",
-        name: "Sku",
-        component: () => import('@/views/product/sku'),
-        meta: { title: 'sku' },
+        meta: { title: '平台属性属性管理' },
       },
       {
         path: "spu",
         name: "Spu",
         component: () => import('@/views/product/spu'),
-        meta: { title: 'spu' },
+        meta: { title: 'Spu管理' },
+      },
+      {
+        path: "sku",
+        name: "Sku",
+        component: () => import('@/views/product/sku'),
+        meta: { title: 'Sku管理' },
+      },
+
+    ]
+  },
+
+  {
+    name: 'Acl',
+    path: '/acl',
+    component: Layout,
+    redirect: '/acl',
+    meta: {
+      title: '权限管理',
+      icon: 'el-icon-lock'
+    },
+    children: [
+      {
+        name: 'User',
+        path: 'user/list',
+        component: () => import('@/views/acl/user/list'),
+        meta: {
+          title: '用户管理',
+        },
+      },
+      {
+        name: 'Role',
+        path: 'role/list',
+        component: () => import('@/views/acl/role/list'),
+        meta: {
+          title: '角色管理',
+        },
+      },
+      {
+        name: 'RoleAuth',
+        path: 'role/auth/:id',
+        component: () => import('@/views/acl/role/roleAuth'),
+        meta: {
+          activeMenu: '/acl/role/list',
+          title: '角色授权',
+        },
+        hidden: true,
+      },
+      {
+        name: 'Permission',
+        path: 'permission/list',
+        component: () => import('@/views/acl/permission/list'),
+        meta: {
+          title: '菜单管理',
+        },
       },
     ]
   },
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
 ]
 
+export const anyRoutes ={ path: '*', redirect: '/404', hidden: true };
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),

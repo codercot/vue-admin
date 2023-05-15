@@ -16,3 +16,6 @@ export const reqAttrList = (category1Id, category2Id, category3Id) =>
 
 // 添加商品属性 /admin/product/saveAttrInfo 
 export const reqAttrInfo = (data) => request({ url: `/admin/product/saveAttrInfo`, method: "post", data })
+
+// 删除商品属性 /admin/product/deleteAttr/{attrId}
+export const reqDeleteAttr = (attrId) => request({ url: `/admin/product/deleteAttr/${attrId}`, method: 'delete' })

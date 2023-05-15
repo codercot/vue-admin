@@ -2,7 +2,7 @@
   <div class="home">
     <el-card style="margin: 20px 0;">
       <!-- 这里要接收子组件传递的id -->
-      <categorySelect @getCategoryid="getID"></categorySelect>
+      <categorySelect @getCategoryid="getID" :show="!isShow"></categorySelect>
     </el-card>
     <el-card>
       <div v-show="isShow">
@@ -22,7 +22,8 @@
           <el-table-column prop="address" label="操作" width="180">
             <template slot-scope="{row}">
               <el-button type="warning" class="el-icon-edit" size="mini" @click="updata(row)"></el-button>
-              <el-button type="danger" class="el-icon-delete" size="mini"></el-button>
+              <el-button type="danger" class="el-icon-delete" size="mini" @click="deleteAttr(row)">
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -46,14 +47,17 @@
               <el-input placeholder="请输入内容" v-model="row.valueName" size="mini"></el-input>
             </template>
           </el-table-column>
+
           <el-table-column prop="address" label="操作">
-            <template slot-scope="{row}">
-              <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <template slot-scope="{row,$index}">
+              <el-popconfirm :title="`确定删除${row.valueName}吗？`" @confirm="deleteAttrValue(row, $index)">
+                <el-button type="danger" class="el-icon-delete" size="mini" slot="reference">
+                </el-button>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
-
-        <el-button type="primary" @click="baocun">保存</el-button>
+        <el-button type="primary" @click="baocun" :disabled="attrInfo.attrValueList.length < 1">保存</el-button>
         <el-button @click="isShow = true">取消</el-button>
       </div>
     </el-card>
@@ -135,6 +139,12 @@ export default {
     },
     // 保存按钮
     async baocun() {
+      // 先对数据进行过滤，筛选掉不用的数据
+      this.attrInfo.attrValueList = this.attrInfo.attrValueList.filter(item => {
+        if (item.valueName != '') {
+          return true
+        }
+      })
       let res = await this.$API.attr.reqAttrInfo(this.attrInfo)
       if (res.code == 200) {
         this.$message({
@@ -149,6 +159,36 @@ export default {
           message: '系统数据不能修改!',
         });
       }
+    },
+
+    // 删除属性值按钮（删除数组中元素即可）
+    deleteAttrValue(row, index) {
+      this.attrInfo.attrValueList.splice(index, 1)
+    },
+    // 删除属性
+    deleteAttr(row) {
+
+      this.$confirm(`此操作将永久删除${row.attrName}, 是否继续?`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        let res = await this.$API.attr.reqDeleteAttr(row.id)
+        if (res.code == 200) {
+          this.$message({
+            type: 'success',
+            message: '删除成功'
+          })
+          this.isShow = true
+          this.getAttrList()
+        }
+      }).catch(() => {
+
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });
+      });
     }
   }
 }

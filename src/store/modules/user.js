@@ -1,12 +1,14 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
-import { resetRouter } from '@/router'
-
+import { resetRouter, asyncRoute, anyRoutes, constantRoutes } from '@/router'
+import router from '@/router'
 const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    resultRoutr: [],
+    resultAllRoute: []
   }
 }
 
@@ -24,7 +26,25 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_Route(state, route) {
+    state.resultRoutr = route
+    state.resultAllRoute = constantRoutes.concat(state.resultRoutr, anyRoutes)
+    // 过滤完成后添加新的路由
+    router.addRoutes(state.resultAllRoute)
   }
+}
+const routeInfo = (reqRoute, asyncRoute) => {
+  // 过滤出需要展示的路由
+  return asyncRoute.filter(item => {
+    if (reqRoute.includes(item.name)) {
+      if (item.children && item.children.length) {
+        // 递归
+        item.children = routeInfo(reqRoute, item.children)
+      }
+      return true
+    }
+  })
 }
 
 const actions = {
@@ -57,6 +77,7 @@ const actions = {
 
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
+        commit('SET_Route', routeInfo(data.routes, asyncRoute))
         resolve(data)
       }).catch(error => {
         reject(error)
